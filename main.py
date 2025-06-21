@@ -1,6 +1,10 @@
 from typing import Optional
 from fastapi import FastAPI, status, HTTPException, Response
 from pydantic import BaseModel
+import psycopg2
+from psycopg2.extras import RealDictCursor
+import time
+
 
 app = FastAPI()
 
@@ -10,6 +14,20 @@ class Post(BaseModel):
     published: bool=True
     rating: Optional[int] = None
 
+try:
+    conn = psycopg2.connect(
+        host='localhost', 
+        database='fastapi_db', 
+        user='postgres', 
+        password='postgresadmin', 
+        cursor_factory=RealDictCursor
+        )
+    cursor = conn.cursor()
+    print("Database connection was successfull!")
+except Exception as error:
+    print("Database connectin failed!")
+    print("Error :", error)
+    time.sleep(2)
 
 posts = [
     {"id": 1, "title": "Exploring FastAPI", "content": "FastAPI is a modern web framework for building APIs with Python."},
@@ -35,7 +53,9 @@ def root():
 
 @app.get("/posts")
 def get_posts():
-    return {"data": posts}
+    cursor.execute(""" SELECT * FROM posts """)
+    posts = cursor.fetchall()
+    return {"Data": posts}
 
 @app.post("/post/")
 def create_posts(post: Post):
