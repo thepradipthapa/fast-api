@@ -113,8 +113,18 @@ def update_post(id: int, updated_post: schemas.PostBase, db: session = Depends(g
     db.commit()
     return post_query.first()
 
+# Get specific user by ID
+@app.get("/users/{id}", response_model=schemas.UserResponse)
+def get_user(id: int, db: session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.id == id).first()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"User with id: {id} not found!"
+        )
+    return user
 
-
+# Create a new user
 @app.post("/users/", status_code=status.HTTP_201_CREATED, response_model=schemas.UserResponse)
 def create_user(user: schemas.UserCreate, db: session = Depends(get_db)):
     # hash the password
@@ -124,3 +134,4 @@ def create_user(user: schemas.UserCreate, db: session = Depends(get_db)):
     db.commit()
     db.refresh(new_user)
     return new_user
+
