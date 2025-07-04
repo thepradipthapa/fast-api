@@ -17,7 +17,7 @@ def get_posts(db: session = Depends(get_db), current_user: id = Depends(oauth2.g
     # cursor.execute(""" SELECT * FROM posts """)
     # posts = cursor.fetchall()
 
-    post = db.query(models.Post).all()
+    post = db.query(models.Post).filter(models.Post.owner_id == current_user.id).all()
     return post
 
 
@@ -48,6 +48,7 @@ def get_post(id: int, db: session = Depends(get_db), current_user: id = Depends(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Post with id: {id} not found!"
         )
+    
     return post
 
 # Delete a specific post by ID
