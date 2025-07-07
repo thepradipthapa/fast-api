@@ -3,6 +3,15 @@ from datetime import datetime
 from typing import Optional
 
 # Define the Post model
+
+class User(BaseModel):
+    id: int
+    email: EmailStr
+    created_at: datetime
+
+    class Config:
+        orm_mode = True 
+
 class PostBase(BaseModel):
     title: str
     content: str
@@ -15,9 +24,10 @@ class Post(PostBase):
     id: int
     created_at: datetime
     owner_id: int
+    owner: User
 
     class Config:
-        orm_model=True
+        orm_mode = True
 
 class UserCreate(BaseModel):
     email: EmailStr
